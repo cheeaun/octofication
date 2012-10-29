@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="assets/popup.css">
+</head>
+<body style="min-width: 320px; max-width: 540px; min-height: 300px;" class="no-transition loading">
+	<section class="view" id="view-auth">
+		<div class="blank-state">
+			<h1>Hi there.</h1>
+			<p><a href="#" id="sign-in-button" class="mini-button"><span class="mini-icon mini-icon-blacktocat"></span> Sign in with GitHub</a></p>
+		</div>
+	</section>
+	<section class="view" id="view-notifications">
+		<div class="sub-view" id="sub-view-nounread">
+			<div class="blank-state">
+				<h1>No unread notifications.</h1>
+				<p>Good job!</p>
+				<a href="http://octodex.github.com/" target="_blank" title="octodex.github.com">
+					<img src="icons/icon-128.png" width="128" height="128" alt=""><br>
+				</a>
+			</div>
+		</div>
+		<div class="sub-view" id="sub-view-unreads">
+			<div class="toolbar flex-box">
+				<h1 class="flex-item"><span class="mini-icon mini-icon-notifications"></span> GitHub Notifications</h1>
+				<a href="#" class="mini-button" id="confirm-mark-everything-read">Mark everything as read</a>
+			</div>
+			<div id="notifications-list"></div>
+		</div>
+	</section>
+	<div class="dialog" id="dialog-markall">
+		<p>Are you sure you want to mark all unread notifications as read?</p>
+		<a href="#" class="mini-button" id="mark-everything-read">Mark everything as read</a>
+		<a href="#" class="mini-button" id="cancel-mark-everything-read">Not sure</a>
+	</div>
+	<div id="cover"></div>
+	<script type="text/html" id="tpl-notifications">
+		{{#list}}
+			<div class="list-browser">
+				{{#repository}}
+					<div class="list-browser-header flex-box" id="repo-{{id}}">
+						<span class="counter">{{count}}</span>
+						<span class="flex-item">
+							<a href="{{url}}" title="{{url}}" target="_blank">{{full_name}}</a>
+						</span>
+						<a href="{{notifications_url}}" class="mini-icon mini-icon-close mark-repo-read" data-id="{{id}}" title="Mark {{name}} notifications as read"></a>
+					</div>
+				{{/repository}}
+				<ul class="list-browser-list">
+					{{#notifications}}
+						<li id="notification-{{id}}" class="notification flex-box">
+							{{#subject}}
+								<a href="{{html_url}}" title="{{html_url}}" target="_blank" class="flex-item flex-box">
+									<span class="mini-icon mini-icon-{{type}}"></span>
+									<span class="flex-item">{{title}}</span>
+								</a>
+							{{/subject}}
+							<time>{{human_updated_at}}</time>
+							<a href="{{url}}" class="mini-icon mini-icon-close mark-thread-read" data-id="{{id}}" title="Mark as read"></a></span>
+						</li>
+					{{/notifications}}
+				</ul>
+			</div>
+		{{/list}}
+	</script>
+	<script src="assets/auth.js"></script>
+	<script src="oauth2/oauth2.js"></script>
+	<script src="oauth2/adapters/github.js"></script>
+	<script src="assets/ruto.js"></script>
+	<script src="assets/mustache.js"></script>
+	<script src="assets/moment.js"></script>
+	<script src="assets/popup.js"></script>
+</body>

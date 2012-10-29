@@ -1,0 +1,32 @@
+{
+	"name": "Octofication",
+	"version": "0.1",
+	"manifest_version": 2,
+	"description": "A nifty little Chrome extension for displaying GitHub notifications.",
+	"icons": {
+		"16": "icons/icon-16.png",
+		"48": "icons/icon-48.png",
+		"128": "icons/icon-128.png"
+	},
+	"browser_action": {
+		"default_icon": "icons/icon-19.png",
+		"default_popup": "popup.html"
+	},
+	"background": {
+		"scripts": ["assets/auth.js", "oauth2/oauth2.js", "oauth2/adapters/github.js", "background.js"],
+		"persistent": false
+	},
+	"content_scripts": [
+		{
+			"matches": ["https://github.com/robots.txt*"],
+			"js": ["oauth2/oauth2_inject.js"],
+			"run_at": "document_start"
+		}
+	],
+	"permissions": [
+		"alarms",
+		"https://api.github.com/",
+		"https://github.com/login/oauth/access_token"
+	],
+	"minimum_chrome_version": "22"
+}
