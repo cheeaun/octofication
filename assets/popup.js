@@ -69,6 +69,11 @@
 		})
 		.add('/notifications', function(){
 			$view('notifications');
+			if (!server.notifications){
+				d.body.classList.remove('loading');
+				$subview('nounread');
+				return;
+			}
 			server.notifications.query().all().execute().done(function(result){
 				d.body.classList.remove('loading');
 				console.log(result);
