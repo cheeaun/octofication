@@ -67,7 +67,7 @@ h1{
 	z-index: 100;
 	opacity: 0;
 	pointer-events: none;
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -85,7 +85,7 @@ h1{
 	z-index: 101;
 	opacity: 0;
 	pointer-events: none;
-	position: absolute;
+	position: fixed;
 	top: -300px;
 	left: 0;
 	width: 100%;
