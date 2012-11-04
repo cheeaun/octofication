@@ -1,5 +1,5 @@
 (function(){
-	var auth = new OAuth2('github', authConfig);
+	var auth = new OAuth2('github', config.auth);
 
 	var scheduleNextPoll = function(delay){
 		chrome.alarms.clearAll();
@@ -7,6 +7,8 @@
 			delayInMinutes: delay || 15
 		});
 	};
+
+	var server;
 
 	var updateBadge = function(){
 		if (!auth.hasAccessToken()) return;
@@ -21,6 +23,7 @@
 				scheduleNextPoll(5);
 				return;
 			}
+			console.log(result);
 			var count = result.length;
 
 			chrome.browserAction.setBadgeText({
@@ -29,6 +32,19 @@
 
 			console.log((new Date()).toLocaleTimeString() + ' - ' + count + ' notifications');
 			scheduleNextPoll();
+
+			// Clear all first, then store notifications in DB
+			server.notifications.clear();
+			for (var i=0; i<count; i++){
+				var r = result[i];
+				r._index = i;
+				// Index is needed to maintain the sort order
+				// else the order will be gone when saved into DB
+				server.notifications.add(r);
+			}
+
+			// Store the last checked datetime
+			sessionStorage.lastChecked = (new Date()).toISOString();
 		};
 		xhr.onerror = xhr.onabort = xhr.ontimeout = function(){
 			scheduleNextPoll(5);
@@ -37,16 +53,17 @@
 		xhr.send();
 	};
 
-	chrome.runtime.onInstalled.addListener(function(){
+	chrome.browserAction.setBadgeBackgroundColor({
+		color: '#4183C4'
+	});
+
+	db.open(config.db).done(function(s){
+		server = s;
 		if (auth.getAccessToken()){
 			updateBadge();
 			scheduleNextPoll();
 		}
+		chrome.alarms.onAlarm.addListener(updateBadge);
 	});
 
-	chrome.alarms.onAlarm.addListener(updateBadge);
-
-	chrome.browserAction.setBadgeBackgroundColor({
-		color: '#4183C4'
-	});
 })();

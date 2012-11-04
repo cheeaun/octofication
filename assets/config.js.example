@@ -1,0 +1,16 @@
+var config = {
+	auth: {
+		client_id: '',
+		client_secret: '',
+		api_scope: 'notifications'
+	},
+	db: {
+		server: 'octoserver',
+		version: 1,
+		schema: {
+			notifications: {
+				key: { keyPath: 'id' }
+			}
+		}
+	}
+}

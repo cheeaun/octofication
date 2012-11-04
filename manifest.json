@@ -1,6 +1,6 @@
 {
 	"name": "Octofication",
-	"version": "0.1",
+	"version": "0.2",
 	"manifest_version": 2,
 	"description": "A nifty little Chrome extension for displaying GitHub notifications.",
 	"icons": {
@@ -13,7 +13,7 @@
 		"default_popup": "popup.html"
 	},
 	"background": {
-		"scripts": ["assets/auth.js", "oauth2/oauth2.js", "oauth2/adapters/github.js", "background.js"],
+		"scripts": ["assets/config.js", "oauth2/oauth2.js", "oauth2/adapters/github.js", "assets/db.js", "background.js"],
 		"persistent": false
 	},
 	"content_scripts": [

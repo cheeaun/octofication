@@ -62,7 +62,8 @@
 		});
 	};
 
-	var auth = new OAuth2('github', authConfig);
+	var auth = new OAuth2('github', config.auth);
+	var server;
 
 	ruto
 		.add('/', function(){
@@ -75,27 +76,20 @@
 		})
 		.add('/notifications', function(){
 			$view('notifications');
-			var xhr = new XMLHttpRequest();
-			xhr.onload = function(){
+			server.notifications.query().all().execute().done(function(result){
 				d.body.classList.remove('loading');
-				var response = this.responseText;
-				var result;
-				try {
-					result = JSON.parse(response);
-				} catch (e) {}
-				if (!result){
-					scheduleNextPoll(5);
-					return;
-				}
+				console.log(result);
 				var count = result.length;
-
-				updateBadge(count);
-				
-				// Render notifications
 				if (!count){
 					$subview('nounread');
 				} else {
 					$subview('unreads');
+
+					result.sort(function(a, b){
+						return a._index - b._index;
+					});
+
+					// Group up the notifications
 					var groupedNotifications = {};
 					for (var i=0; i<count; i++){
 						var n = result[i];
@@ -130,19 +124,17 @@
 							})
 						});
 					}
+
+					// Display 'em
 					$('notifications-list').innerHTML = $tpl('notifications', {list: data});
 				}
+			});
+		});
 
-				scheduleNextPoll();
-			};
-			xhr.onerror = xhr.onabort = xhr.ontimeout = function(){
-				scheduleNextPoll(5);
-				d.body.classList.remove('loading');
-			};
-			xhr.open('GET', 'https://api.github.com/notifications?access_token=' + auth.getAccessToken() + '&_=' + Math.round(+new Date()/1000/60), true);
-			xhr.send();
-		})
-		.init();
+	db.open(config.db).done(function(s){
+		server = s
+		ruto.init();
+	});
 
 	// Sign in button
 	$('sign-in-button').addEventListener('click', function(e){
@@ -160,8 +152,16 @@
 			if (!url) return;
 			var id = el.dataset.id;
 			var xhr = new XMLHttpRequest();
+			xhr.onload = function(){
+				if (this.status == 205){
+					server.notifications.remove(id);
+				}
+			};
 			xhr.open('PATCH', url + '?access_token=' + auth.getAccessToken(), true);
-			xhr.send(JSON.stringify({read: true}));
+			xhr.send(JSON.stringify({
+				read: true,
+				last_read_at: sessionStorage.lastChecked
+			}));
 			$('notification-' + id).classList.add('read');
 			updateBadge();
 		} else if (el.classList.contains('mark-repo-read')){ // Mark notifications in a repo as read
@@ -169,11 +169,22 @@
 			var url = el.href;
 			if (!url) return;
 			var id = el.dataset.id;
-			var xhr = new XMLHttpRequest();
-			xhr.open('PUT', url + '?access_token=' + auth.getAccessToken(), true);
-			xhr.send(JSON.stringify({read: true}));
-			el.classList.add('disabled');
 			var notiEls = $('repo-' + id).parentNode.querySelectorAll('.notification');
+			var xhr = new XMLHttpRequest();
+			xhr.onload = function(){
+				if (this.status == 205){
+					for (var i=0, l=notiEls.length; i<l; i++){
+						var id = (notiEls[i].id.match(/^notification\-(\d+)$/i) || [,''])[1];
+						if (id) server.notifications.remove(id);
+					}
+				}
+			};
+			xhr.open('PUT', url + '?access_token=' + auth.getAccessToken(), true);
+			xhr.send(JSON.stringify({
+				read: true,
+				last_read_at: sessionStorage.lastChecked
+			}));
+			el.classList.add('disabled');
 			for (var i=0, l=notiEls.length; i<l; i++){
 				notiEls[i].classList.add('read');
 			}
@@ -185,8 +196,16 @@
 	$('mark-everything-read').addEventListener('click', function(e){
 		e.preventDefault();
 		var xhr = new XMLHttpRequest();
+		xhr.onload = function(){
+			if (this.status == 205){
+				server.notifications.clear();
+			}
+		};
 		xhr.open('PUT', 'https://api.github.com/notifications?access_token=' + auth.getAccessToken(), true);
-		xhr.send(JSON.stringify({read: true}));
+		xhr.send(JSON.stringify({
+			read: true,
+			last_read_at: sessionStorage.lastChecked
+		}));
 		var notiEls = d.querySelectorAll('.notification');
 		for (var i=0, l=notiEls.length; i<l; i++){
 			notiEls[i].classList.add('read');
