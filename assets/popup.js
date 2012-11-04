@@ -48,13 +48,6 @@
 		return tpl(data, partials);
 	};
 
-	var scheduleNextPoll = function(delay){
-		chrome.alarms.clearAll();
-		chrome.alarms.create({
-			delayInMinutes: delay || 15
-		});
-	};
-
 	var updateBadge = function(count){
 		if (!count) count = d.querySelectorAll('.notification:not(.read)').length;
 		chrome.browserAction.setBadgeText({
