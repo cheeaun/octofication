@@ -49,7 +49,7 @@
 		xhr.onerror = xhr.onabort = xhr.ontimeout = function(){
 			scheduleNextPoll(5);
 		};
-		xhr.open('GET', 'https://api.github.com/notifications?access_token=' + auth.getAccessToken() + '&_=' + Math.round(+new Date()/1000/60/10), true);
+		xhr.open('GET', 'https://api.github.com/notifications?access_token=' + auth.getAccessToken() + '&_=' + Math.round(+new Date()/1000), true);
 		xhr.send();
 	};
 
@@ -59,10 +59,21 @@
 
 	db.open(config.db).done(function(s){
 		server = s;
-		if (auth.getAccessToken()){
-			updateBadge();
-			scheduleNextPoll();
-		}
+		var tokenCheck = function(){
+			if (auth.getAccessToken()){
+				chrome.browserAction.setBadgeText({
+					text: ''
+				});
+				updateBadge();
+				scheduleNextPoll();
+			} else {
+				chrome.browserAction.setBadgeText({
+					text: '?'
+				});
+				setTimeout(tokenCheck, 1000);
+			}
+		};
+		tokenCheck();
 		chrome.alarms.onAlarm.addListener(updateBadge);
 	});
 
