@@ -40,9 +40,40 @@ h1{
 	text-align: center;
 }
 
-.blank-state-reward{
-	margin-top: 20px;
-	text-align: center;
+.octo-state{
+	display: inline-block;
+}
+.octo-state img{
+	-webkit-animation: float 2s infinite;
+	animation: float 2s infinite;
+}
+.octo-state .shadow{
+	display: block;
+	margin: auto;
+	width: 80px;
+	height: 8px;
+	border-radius: 100%;
+	background-color: rgba(0,0,0,.2);
+	box-shadow: inset 0 0 2px #fafafa;
+	-webkit-animation: shadowFloat 2s infinite;
+	animation: shadowFloat 2s infinite;
+}
+
+@-webkit-keyframes float {
+	0%, 100% {-webkit-transform: translateY(-5px);}
+	50% {-webkit-transform: translateY(5px);}
+}
+@-webkit-keyframes shadowFloat {
+	0%, 100% {-webkit-transform: scale(.8);}
+	50% {-webkit-transform: scale(1);}
+}
+@keyframes float {
+	0%, 100% {transform: translateY(-5px);}
+	50% {transform: translateY(5px);}
+}
+@keyframes shadowFloat {
+	0%, 100% {transform: scale(.8);}
+	50% {transform: scale(1);}
 }
 
 .flex-box{
