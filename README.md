@@ -1,3 +1,5 @@
+![Octocat](https://raw.github.com/cheeaun/octofication/master/icons/icon-128.png)
+
 Octofication
 ============
 
