@@ -75,6 +75,16 @@
 		};
 		tokenCheck();
 		chrome.alarms.onAlarm.addListener(updateBadge);
+
+		chrome.extension.onMessage.addListener(function(request){
+			if (request.type == 'updateNotification'){
+				server.notifications.get(request.data.id).done(function(n){
+					n.subject.html_url = request.data.html_url;
+					n.unread = false;
+					server.notifications.update(n);
+				});
+			}
+		});
 	});
 
 })();

@@ -31,7 +31,11 @@
 	<div class="dialog" id="dialog-markall">
 		<p>Are you sure you want to mark all unread notifications as read?</p>
 		<a href="#" class="mini-button" id="mark-everything-read">Mark everything as read</a>
-		<a href="#" class="mini-button" id="cancel-mark-everything-read">Not sure</a>
+		<a href="#" class="mini-button close-dialog" id="cancel-mark-everything-read">Not sure</a>
+	</div>
+	<div class="dialog" id="dialog-error">
+		<p>Uh-oh, an unexpected error occured. Please try again.</p>
+		<a href="#" class="mini-button close-dialog">Okay</a>
 	</div>
 	<div id="cover"></div>
 	<script type="text/html" id="tpl-notifications">
@@ -48,9 +52,9 @@
 				{{/repository}}
 				<ul class="list-browser-list">
 					{{#notifications}}
-						<li id="notification-{{id}}" class="notification flex-box">
+						<li id="notification-{{id}}" class="notification flex-box {{^unread}}read{{/unread}}">
 							{{#subject}}
-								<a href="{{html_url}}" title="{{html_url}}" target="_blank" class="flex-item flex-box">
+								<a href="{{html_url}}" title="{{tooltip_text}}" target="_blank" class="flex-item flex-box notification-link {{#no_link}}no-link{{/no_link}}" data-id="{{id}}">
 									<span class="mini-icon mini-icon-{{type}}"></span>
 									<span class="flex-item">{{title}}</span>
 								</a>

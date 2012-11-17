@@ -183,6 +183,12 @@ h1{
 	color: #000;
 	font-weight: bold;
 }
+.list-browser-list li>a:active{
+	color: #999;
+}
+.list-browser-list li>a *{
+	pointer-events: none;
+}
 .list-browser-list li>a span{
 	display: block;
 	white-space: nowrap;

@@ -117,7 +117,15 @@
 							},
 							notifications: n.notifications.map(function(noti){
 								noti.human_updated_at = moment(noti.updated_at).fromNow();
-								noti.subject.html_url = noti.subject.url.replace('//api.', '//').replace('/repos/', '/');
+								var html_url = noti.subject.html_url;
+								if (!html_url){
+									noti.subject.html_url = '#';
+									noti.subject.no_link = true;
+									// html_url = chrome.extension.getURL('redirect.html') + '#' + noti.id + ';' + encodeURIComponent(noti.subject.url) + ';' + encodeURIComponent(noti.subject.title);
+									// noti.subject.html_url = html_url;
+								} else {
+									noti.subject.tooltip_text = html_url;
+								}
 								return noti;
 							})
 						});
@@ -140,6 +148,57 @@
 			if (auth.hasAccessToken()) $view('notifications');
 		});
 		e.preventDefault();
+	}, false);
+
+	// Notification links
+	d.addEventListener('click', function(e){
+		var el = e.target;
+		if (!el || !el.classList.contains('notification-link')) return;
+		if (!el.classList.contains('no-link')) return;
+		e.preventDefault();
+		var id = el.dataset.id;
+		var error = function(){
+			$dialog('error');
+		};
+		if (!id){
+			error();
+			return;
+		}
+		$('cover').classList.add('show');
+		server.notifications.get(id).done(function(n){
+			if (!n || !n.subject || !n.subject.url){
+				error();
+				return;
+			}
+			var url = n.subject.url;
+			var xhr = new XMLHttpRequest();
+			xhr.onload = function(){
+				var response = this.responseText;
+				var result;
+				try {
+					result = JSON.parse(response);
+				} catch (e) {}
+				if (!result || !result.html_url){
+					error();
+					return;
+				}
+				var html_url = result.html_url;
+
+				chrome.tabs.create({
+					url: html_url
+				});
+				chrome.extension.sendMessage({
+					type: 'updateNotification',
+					data: {
+						id: id,
+						html_url: html_url
+					}
+				});
+			};
+			xhr.onerror = xhr.onabort = xhr.ontimeout = error;
+			xhr.open('GET', url + '?access_token=' + auth.getAccessToken(), true);
+			xhr.send();
+		});
 	}, false);
 
 	d.addEventListener('click', function(e){
@@ -167,7 +226,7 @@
 			var url = el.href;
 			if (!url) return;
 			var id = el.dataset.id;
-			var notiEls = $('repo-' + id).parentNode.querySelectorAll('.notification');
+			var notiEls = $('repo-' + id).parentElement.querySelectorAll('.notification');
 			var xhr = new XMLHttpRequest();
 			xhr.onload = function(){
 				if (this.status == 205){
@@ -222,10 +281,14 @@
 		$dialog('markall');
 	}, false);
 
-	// Cancel Mark everything as read
-	$('cancel-mark-everything-read').addEventListener('click', function(e){
-		e.preventDefault();
-		$dialog();
+	// Close dialog
+	d.addEventListener('click', function(e){
+		var el = e.target;
+		if (!el) return;
+		if (el.classList.contains('close-dialog')){
+			e.preventDefault();
+			$dialog();
+		}
 	}, false);
 
 	// Enable CSS transitions only after page load
