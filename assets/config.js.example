@@ -2,7 +2,7 @@ var config = {
 	auth: {
 		client_id: '',
 		client_secret: '',
-		api_scope: 'notifications'
+		api_scope: 'notifications, repo'
 	},
 	db: {
 		server: 'octoserver',
